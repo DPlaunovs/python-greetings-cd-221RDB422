@@ -34,5 +34,5 @@ runs:
       shell: cmd
 
     - name: Wait for app to be ready
-      run: Start-Sleep -Seconds 3
-      shell: pwsh
+      run: timeout /t 3 > NUL
+      shell: cmd
