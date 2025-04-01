@@ -12,7 +12,6 @@ inputs:
 
 runs:
   using: "composite"
-  shell: cmd
   steps:
     - name: Checkout python app
       uses: actions/checkout@v4
@@ -21,8 +20,10 @@ runs:
         path: python-greetings
 
     - name: Stop existing PM2 app
+      shell: cmd
       run: pm2 delete greetings-app-${{ inputs.env }} & exit 0
 
     - name: Start app with PM2
+      shell: cmd
       run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }}
       working-directory: python-greetings
