@@ -1,0 +1,12 @@
+name: Python Greetings CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  example:
+    runs-on: self-hosted
+    steps:
+      - name: Say hello
+        run: echo "Hello from GitHub Actions"
