@@ -10,6 +10,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Stop Python if running
+      shell: cmd
+      run: |
+        taskkill /F /IM python.exe || exit /B 0
+
     - name: Checkout test framework
       uses: actions/checkout@v4
       with:
