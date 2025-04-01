@@ -10,10 +10,14 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Stop Python if running
+    - name: Stop PM2 and Python if running
       shell: cmd
       run: |
+        pm2 delete all || exit /B 0
         taskkill /F /IM python.exe || exit /B 0
+        IF EXIST test-suite (
+          rmdir /S /Q test-suite
+        )
 
     - name: Checkout test framework
       uses: actions/checkout@v4
