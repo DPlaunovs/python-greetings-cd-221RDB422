@@ -1,13 +1,18 @@
 name: Deploy App
-description: Deploys the python-greetings app
+
+description: Stops and starts the Python Greetings app using PM2
+
 inputs:
   env:
+    description: Environment name (e.g. dev, staging, preprod, prod)
     required: true
   port:
+    description: Port to run the app on
     required: true
 
 runs:
   using: "composite"
+  shell: cmd
   steps:
     - name: Checkout python app
       uses: actions/checkout@v4
@@ -16,10 +21,8 @@ runs:
         path: python-greetings
 
     - name: Stop existing PM2 app
-      shell: bash
-      run: pm2 delete greetings-app-${{ inputs.env }} || true
+      run: pm2 delete greetings-app-${{ inputs.env }} & exit 0
 
     - name: Start app with PM2
-      shell: bash
-      working-directory: python-greetings
       run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }}
+      working-directory: python-greetings
