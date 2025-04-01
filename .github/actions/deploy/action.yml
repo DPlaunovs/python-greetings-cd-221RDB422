@@ -1,22 +1,16 @@
-name: Deploy
-description: Deploy Python app using PM2
-
+name: "Deploy Python App"
+description: "Deploy python app using pm2"
 inputs:
   env:
-    description: Environment name (e.g., dev, staging)
+    description: "Environment name (dev, stg, etc)"
     required: true
   port:
-    description: Port number
+    description: "Port number"
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Kill Python processes if running
-      run: |
-        taskkill /F /IM python.exe || echo "Python not running"
-      shell: cmd
-
     - name: Force delete old python-greetings folder
       run: |
         IF EXIST python-greetings (
@@ -30,11 +24,16 @@ runs:
         repository: mtararujs/python-greetings
         path: python-greetings
 
-    - name: Delete old PM2 process
-      run: pm2 delete greetings-app-${{ inputs.env }} || exit 0
+    - name: Stop Python if running
+      run: |
+        taskkill /F /IM python.exe || exit /B 0
       shell: cmd
 
-    - name: Start python app
+    - name: Stop existing pm2 service (ignore error if not running)
+      run: pm2 delete greetings-app-${{ inputs.env }} || exit /B 0
+      shell: cmd
+
+    - name: Start new app with pm2
       run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }}
       working-directory: python-greetings
       shell: cmd
