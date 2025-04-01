@@ -32,3 +32,8 @@ runs:
       run: pm2 start app.py --name greetings-app-${{ inputs.env }} --interpreter python -- --port ${{ inputs.port }} --no-debugger
       working-directory: python-greetings
       shell: cmd
+
+    - name: Wait for app to be ready
+      shell: cmd
+      run: timeout /t 3 /nobreak
+
