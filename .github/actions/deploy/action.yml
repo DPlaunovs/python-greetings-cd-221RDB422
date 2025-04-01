@@ -1,29 +1,44 @@
-name: Deploy App
-
-description: Stops and starts the Python Greetings app using PM2
+name: Deploy
+description: Deploy Python app using PM2
 
 inputs:
   env:
-    description: Environment name (e.g. dev, staging, preprod, prod)
+    description: Environment name (e.g., dev, staging)
     required: true
   port:
-    description: Port to run the app on
+    description: Port number
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Checkout python app
+    - name: Checkout pipeline repo (main repo)
+      uses: actions/checkout@v4
+
+    - name: Checkout python-greetings repo
       uses: actions/checkout@v4
       with:
         repository: mtararujs/python-greetings
         path: python-greetings
 
-    - name: Stop existing PM2 app
+    - name: Force delete old python-greetings folder
+      run: |
+        IF EXIST python-greetings (
+          rmdir /S /Q python-greetings
+        )
       shell: cmd
-      run: pm2 delete greetings-app-${{ inputs.env }} & exit 0
 
-    - name: Start app with PM2
-      - run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }} --no-debugger
+    - name: Clone python-greetings repo again
+      uses: actions/checkout@v4
+      with:
+        repository: mtararujs/python-greetings
+        path: python-greetings
+
+    - name: Stop existing PM2 service
+      run: pm2 delete greetings-app-${{ inputs.env }} || exit 0
+      shell: cmd
+
+    - name: Start Python app with PM2
+      run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }} --no-debugger
       working-directory: python-greetings
       shell: cmd
