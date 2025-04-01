@@ -1,24 +1,27 @@
 name: Run Tests
-description: Runs API tests for python-greetings
+
+description: Run API tests using NodeJS
+
 inputs:
   env:
+    description: Environment name (e.g. dev, staging, preprod, prod)
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Checkout test repo
+    - name: Checkout test framework
       uses: actions/checkout@v4
       with:
         repository: mtararujs/course-js-api-framework
         path: test-suite
 
-    - name: Install Node.js dependencies
-      shell: bash
-      working-directory: test-suite
+    - name: Install node dependencies
+      shell: cmd
       run: npm install
+      working-directory: test-suite
 
     - name: Run tests
-      shell: bash
-      working-directory: test-suite
+      shell: cmd
       run: npm run greetings greetings_${{ inputs.env }}
+      working-directory: test-suite
