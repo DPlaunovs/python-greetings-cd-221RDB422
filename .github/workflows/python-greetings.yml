@@ -1,14 +1,14 @@
-name: Python Greetings Delivery Pipeline
+name: python-greetings pipeline
 
 on:
   push:
+    branches: [ main ]
 
 jobs:
   install-pip-deps:
     runs-on: self-hosted
     steps:
-      - name: Checkout current repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Checkout app repo
         uses: actions/checkout@v4
@@ -16,82 +16,59 @@ jobs:
           repository: mtararujs/python-greetings
           path: python-greetings
 
-      - name: Install Python dependencies
-        working-directory: python-greetings
+      - name: Install dependencies
         run: pip install -r requirements.txt
+        working-directory: python-greetings
 
   deploy-to-dev:
-    needs: install-pip-deps
     runs-on: self-hosted
+    needs: install-pip-deps
     steps:
-      - name: Deploy to dev
-        uses: ./.github/actions/deploy
+      - uses: actions/checkout@v4
+
+      - name: Cleanup previous service (if exists)
+        shell: cmd
+        run: |
+          pm2 delete greetings-app-dev || exit 0
+          timeout /t 3
+
+      - name: Clean directory if stuck
+        shell: cmd
+        run: rmdir /S /Q python-greetings || exit 0
+
+      - name: Checkout app repo
+        uses: actions/checkout@v4
         with:
-          env: dev
-          port: 7001
+          repository: mtararujs/python-greetings
+          path: python-greetings
+
+      - name: Start dev service
+        shell: cmd
+        run: pm2 start app.py --name greetings-app-dev -- --port 7001
+        working-directory: python-greetings
 
   tests-on-dev:
+    runs-on: self-hosted
     needs: deploy-to-dev
-    runs-on: self-hosted
     steps:
-      - name: Test on dev
-        uses: ./.github/actions/test
-        with:
-          env: dev
+      - uses: actions/checkout@v4
 
-  deploy-to-staging:
-    needs: tests-on-dev
-    runs-on: self-hosted
-    steps:
-      - name: Deploy to staging
-        uses: ./.github/actions/deploy
-        with:
-          env: staging
-          port: 7002
+      - name: Cleanup previous tests
+        shell: cmd
+        run: rmdir /S /Q test-suite || exit 0
 
-  tests-on-staging:
-    needs: deploy-to-staging
-    runs-on: self-hosted
-    steps:
-      - name: Test on staging
-        uses: ./.github/actions/test
+      - name: Checkout test repo
+        uses: actions/checkout@v4
         with:
-          env: staging
+          repository: mtararujs/course-js-api-framework
+          path: test-suite
 
-  deploy-to-preprod:
-    needs: tests-on-staging
-    runs-on: self-hosted
-    steps:
-      - name: Deploy to preprod
-        uses: ./.github/actions/deploy
-        with:
-          env: preprod
-          port: 7003
+      - name: Install test dependencies
+        shell: cmd
+        run: npm install
+        working-directory: test-suite
 
-  tests-on-preprod:
-    needs: deploy-to-preprod
-    runs-on: self-hosted
-    steps:
-      - name: Test on preprod
-        uses: ./.github/actions/test
-        with:
-          env: preprod
-
-  deploy-to-prod:
-    needs: tests-on-preprod
-    runs-on: self-hosted
-    steps:
-      - name: Deploy to prod
-        uses: ./.github/actions/deploy
-        with:
-          env: prod
-          port: 7004
-
-  tests-on-prod:
-    needs: deploy-to-prod
-    runs-on: self-hosted
-    steps:
-      - name: Test on prod
-        uses: ./.github/actions/test
-        with:
-          env: prod
+      - name: Run tests
+        shell: cmd
+        run: npm run greetings greetings_dev
+        working-directory: test-suite
