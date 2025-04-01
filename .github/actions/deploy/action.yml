@@ -34,5 +34,5 @@ runs:
       shell: cmd
 
     - name: Wait for app to be ready
-      run: timeout /t 3 > NUL
+      run: timeout /t 3
       shell: cmd
