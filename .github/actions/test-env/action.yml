@@ -1,6 +1,5 @@
 name: Run tests on environment
-description: Run JS tests using Mocha against target environment
-
+description: Run JS tests using mocha against target environment
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
@@ -19,15 +18,11 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Mocha tests
-      run: >
-        npx mocha tests/scenarios/greetings/*.js
-        --reporter mochawesome
-        --timeout 20000
+    - name: Run mocha tests for greetings
+      run: |
+        set ENV=greetings_${{ inputs.env }} && npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
       shell: cmd
       working-directory: js-framework
-      env:
-        ENV: greetings_${{ inputs.env }}
 
     - name: Confirm tests completed
       run: echo Tests for ${{ inputs.env }} completed!
