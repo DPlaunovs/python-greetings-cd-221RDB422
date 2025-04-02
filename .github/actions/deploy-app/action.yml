@@ -41,8 +41,3 @@ runs:
         cd "python-greetings"
         pm2 start app.py --name "greetings-app-${{ inputs.env }}" --interpreter python -- --port ${{ inputs.port }} --no-debugger
 
-    - name: Wait for app startup
-      shell: cmd
-      run: |
-        echo Pausing for 3 seconds to allow the app to fully start...
-        timeout /T 3
