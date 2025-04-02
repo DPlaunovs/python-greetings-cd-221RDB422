@@ -1,5 +1,5 @@
 name: Run tests on environment
-description: Run Mocha tests using environment config
+description: Run JS tests against target environment
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
@@ -8,27 +8,27 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Echo test environment
+    - name: Echo testing environment
       run: echo Running tests for ${{ inputs.env }}
       shell: cmd
       working-directory: js-framework
 
-    - name: Write environment to set-env.js
-      run: echo global.env="greetings_${{ inputs.env }}" > set-env.js
-      shell: cmd
+    - name: Set global.env
+      run: Set-Content -Path set-env.js -Value 'global.env="greetings_${{ inputs.env }}"'
+      shell: powershell
       working-directory: js-framework
 
-    - name: Install dependencies
+    - name: Install npm dependencies
       run: npm install
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Mocha tests with required env
+    - name: Run tests
       run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
       shell: cmd
       working-directory: js-framework
 
-    - name: Confirm test run
-      run: echo Tests finished for ${{ inputs.env }}
+    - name: Confirm tests completed
+      run: echo Tests for ${{ inputs.env }} completed!
       shell: cmd
       working-directory: js-framework
