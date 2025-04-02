@@ -1,5 +1,5 @@
 name: Run tests on environment
-description: Run JS tests using mocha and mochawesome, setting global.env dynamically
+description: Run JS tests with mocha and mochawesome
 
 inputs:
   env:
@@ -14,20 +14,17 @@ runs:
       shell: cmd
       working-directory: js-framework
 
+    - name: Create set-env.js with global.env
+      run: echo global.env=\"greetings_${{ inputs.env }}\" > set-env.js
+      shell: cmd
+      working-directory: js-framework
+
     - name: Install npm dependencies
       run: npm install
       shell: cmd
       working-directory: js-framework
 
     - name: Run Mocha tests with global.env
-      shell: node
+      run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
+      shell: cmd
       working-directory: js-framework
-      run: |
-        // Set global.env so request.js can pick correct host
-        global.env = "greetings_${{ inputs.env }}";
-        console.log("Running tests with global.env =", global.env);
-
-        const { execSync } = require("child_process");
-        execSync("npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000", {
-          stdio: "inherit"
-        });
