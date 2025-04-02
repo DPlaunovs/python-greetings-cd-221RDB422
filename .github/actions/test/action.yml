@@ -30,8 +30,12 @@ runs:
       run: npm install
       working-directory: test-suite
 
+    - name: Set environment for test
+      shell: cmd
+      run: set TEST_ENV=${{ inputs.env }}
+
     - name: Run tests
       shell: cmd
-      run: set TEST_ENV=${{ inputs.env }} && npm run greetings
+      run: npm run greetings
       working-directory: test-suite
 
