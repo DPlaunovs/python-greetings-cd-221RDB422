@@ -22,13 +22,17 @@ jobs:
     needs: install-pip-deps
     runs-on: [self-hosted, Windows]
     steps:
-      - name: Kill PM2 processes if any
-        run: pm2 delete all & EXIT /B 0
+      - name: Kill PM2 app if running
+        run: pm2 delete greetings-app-dev & EXIT /B 0
         shell: cmd
 
-      - name: Delete old directory if locked
-        run: rmdir /S /Q python-greetings
+      - name: Wait for PM2 to release files
+        run: timeout /T 5
         shell: cmd
+
+      - name: Force delete old directory
+        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+        shell: pwsh
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -67,13 +71,17 @@ jobs:
     needs: tests-on-dev
     runs-on: [self-hosted, Windows]
     steps:
-      - name: Kill PM2 processes if any
-        run: pm2 delete all & EXIT /B 0
+      - name: Kill PM2 app if running
+        run: pm2 delete greetings-app-staging & EXIT /B 0
         shell: cmd
 
-      - name: Delete old directory if locked
-        run: rmdir /S /Q python-greetings
+      - name: Wait for PM2 to release files
+        run: timeout /T 5
         shell: cmd
+
+      - name: Force delete old directory
+        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+        shell: pwsh
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -112,13 +120,17 @@ jobs:
     needs: tests-on-staging
     runs-on: [self-hosted, Windows]
     steps:
-      - name: Kill PM2 processes if any
-        run: pm2 delete all & EXIT /B 0
+      - name: Kill PM2 app if running
+        run: pm2 delete greetings-app-preprod & EXIT /B 0
         shell: cmd
 
-      - name: Delete old directory if locked
-        run: rmdir /S /Q python-greetings
+      - name: Wait for PM2 to release files
+        run: timeout /T 5
         shell: cmd
+
+      - name: Force delete old directory
+        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+        shell: pwsh
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -157,13 +169,17 @@ jobs:
     needs: tests-on-preprod
     runs-on: [self-hosted, Windows]
     steps:
-      - name: Kill PM2 processes if any
-        run: pm2 delete all & EXIT /B 0
+      - name: Kill PM2 app if running
+        run: pm2 delete greetings-app-prod & EXIT /B 0
         shell: cmd
 
-      - name: Delete old directory if locked
-        run: rmdir /S /Q python-greetings
+      - name: Wait for PM2 to release files
+        run: timeout /T 5
         shell: cmd
+
+      - name: Force delete old directory
+        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+        shell: pwsh
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
