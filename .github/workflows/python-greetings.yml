@@ -1,139 +1,102 @@
-name: python-greetings-pipeline
-
+name: Python Greetings CI/CD
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   install-pip-deps:
     runs-on: [self-hosted]
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Delete old greetings folder if needed
-        run: |
-          IF EXIST python-greetings (
-            rmdir /S /Q python-greetings
-          )
-        shell: cmd
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
-        with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Install pip dependencies
-        run: pip install -r requirements.txt
-        working-directory: python-greetings
-        shell: cmd
+      # Ensure pipeline repo is checked out (access to .github/actions)
+      - uses: actions/checkout@v4
+      - name: Install Python dependencies
+        uses: ./.github/actions/install-pip-deps
 
   deploy-to-dev:
-    needs: install-pip-deps
     runs-on: [self-hosted]
+    needs: install-pip-deps  # run only after dependencies are installed
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to dev
+      - uses: actions/checkout@v4
+      - name: Deploy to Dev
         uses: ./.github/actions/deploy
         with:
           env: dev
           port: 7001
 
   tests-on-dev:
-    needs: deploy-to-dev
     runs-on: [self-hosted]
+    needs: deploy-to-dev  # run only after Dev deployment is complete
     steps:
-      - name: Stop Python if running and clean test folder
-        shell: cmd
-        run: |
-          taskkill /F /IM python.exe || exit /B 0
-          IF EXIST test-suite (
-            rmdir /S /Q test-suite
-          )
-
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Run tests on dev
+      - uses: actions/checkout@v4
+      - name: Test on Dev
         uses: ./.github/actions/test
         with:
           env: dev
+          port: 7001
 
   deploy-to-staging:
-    needs: tests-on-dev
     runs-on: [self-hosted]
+    needs: tests-on-dev
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to staging
+      - uses: actions/checkout@v4
+      - name: Deploy to Staging
         uses: ./.github/actions/deploy
         with:
           env: staging
           port: 7002
 
   tests-on-staging:
-    needs: deploy-to-staging
     runs-on: [self-hosted]
+    needs: deploy-to-staging
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Run tests on staging
+      - uses: actions/checkout@v4
+      - name: Test on Staging
         uses: ./.github/actions/test
         with:
           env: staging
+          port: 7002
 
   deploy-to-preprod:
-    needs: tests-on-staging
     runs-on: [self-hosted]
+    needs: tests-on-staging
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to preprod
+      - uses: actions/checkout@v4
+      - name: Deploy to Preprod
         uses: ./.github/actions/deploy
         with:
           env: preprod
           port: 7003
 
   tests-on-preprod:
-    needs: deploy-to-preprod
     runs-on: [self-hosted]
+    needs: deploy-to-preprod
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Run tests on preprod
+      - uses: actions/checkout@v4
+      - name: Test on Preprod
         uses: ./.github/actions/test
         with:
           env: preprod
+          port: 7003
 
   deploy-to-prod:
-    needs: tests-on-preprod
     runs-on: [self-hosted]
+    needs: tests-on-preprod
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to prod
+      - uses: actions/checkout@v4
+      - name: Deploy to Prod
         uses: ./.github/actions/deploy
         with:
           env: prod
           port: 7004
 
   tests-on-prod:
-    needs: deploy-to-prod
     runs-on: [self-hosted]
+    needs: deploy-to-prod
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Run tests on prod
+      - uses: actions/checkout@v4
+      - name: Test on Prod
         uses: ./.github/actions/test
         with:
           env: prod
+          port: 7004
