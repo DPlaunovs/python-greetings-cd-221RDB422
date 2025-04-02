@@ -1,0 +1,17 @@
+name: Install Python Dependencies
+description: Checkout the Python service repository and install required pip libraries.
+# No inputs required for this composite action
+runs:
+  using: composite
+  steps:
+    - name: Checkout Python service repository
+      uses: actions/checkout@v4
+      with:
+        repository: <OWNER>/python-greetings
+        path: python-service
+    - name: Install dependencies via pip
+      run: pip install -r python-service/requirements.txt
+      shell: pwsh
+    - name: Confirm dependencies installed
+      run: echo "Python dependencies installed successfully."
+      shell: pwsh
