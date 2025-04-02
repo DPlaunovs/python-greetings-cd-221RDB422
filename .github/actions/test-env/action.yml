@@ -1,24 +1,34 @@
-- name: Echo testing environment
-  run: echo Running tests for ${{ inputs.env }}
-  shell: cmd
-  working-directory: js-framework
+name: Run tests on environment
+description: Run Mocha tests against greetings service
+inputs:
+  env:
+    description: Environment name (e.g. dev, staging, preprod, prod)
+    required: true
 
-- name: Write global.env to JS file
-  run: echo global.env="greetings_${{ inputs.env }}" > set-env.js
-  shell: cmd
-  working-directory: js-framework
+runs:
+  using: "composite"
+  steps:
+    - name: Echo testing environment
+      run: echo Running tests for ${{ inputs.env }}
+      shell: cmd
+      working-directory: js-framework
 
-- name: Install npm dependencies
-  run: npm install
-  shell: cmd
-  working-directory: js-framework
+    - name: Write global.env to JS file
+      run: echo global.env="greetings_${{ inputs.env }}" > set-env.js
+      shell: cmd
+      working-directory: js-framework
 
-- name: Run tests
-  run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
-  shell: cmd
-  working-directory: js-framework
+    - name: Install npm dependencies
+      run: npm install
+      shell: cmd
+      working-directory: js-framework
 
-- name: Confirm tests completed
-  run: echo Tests for ${{ inputs.env }} completed!
-  shell: cmd
-  working-directory: js-framework
+    - name: Run tests
+      run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
+      shell: cmd
+      working-directory: js-framework
+
+    - name: Confirm tests completed
+      run: echo Tests for ${{ inputs.env }} completed!
+      shell: cmd
+      working-directory: js-framework
