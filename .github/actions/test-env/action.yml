@@ -1,7 +1,3 @@
- Pārstrādātā versija ar npx (ieteicams):
-yaml
-Копировать
-Редактировать
 name: Run tests on environment
 description: Run JS tests using newman against target environment
 inputs:
