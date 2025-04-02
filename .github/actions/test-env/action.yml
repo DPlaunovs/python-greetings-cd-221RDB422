@@ -1,0 +1,31 @@
+name: Run Tests on Environment
+description: Checkout test framework and execute test suite against the specified environment.
+inputs:
+  env:
+    description: Target environment name (e.g. dev, staging, preprod, prod)
+    required: true
+  port:
+    description: Port number of the target environment service
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Announce test run
+      run: echo "Running tests for ${{ inputs.env }} environment (port ${{ inputs.port }})"
+      shell: pwsh
+    - name: Checkout test framework repository
+      uses: actions/checkout@v4
+      with:
+        repository: <OWNER>/course-js-api-framework
+        path: js-framework
+    - name: Install test dependencies
+      run: npm install
+      shell: pwsh
+      working-directory: js-framework
+    - name: Execute test suite
+      run: npm run greetings_${{ inputs.env }}
+      shell: pwsh
+      working-directory: js-framework
+    - name: Confirm tests completed
+      run: echo "Tests on ${{ inputs.env }} environment completed."
+      shell: pwsh
