@@ -26,8 +26,13 @@ jobs:
         run: pm2 delete greetings-app-dev & EXIT /B 0
         shell: cmd
 
+      - name: Kill any lingering python.exe
+        run: |
+          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: powershell
+
       - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
       - name: Force delete old directory
@@ -75,8 +80,13 @@ jobs:
         run: pm2 delete greetings-app-staging & EXIT /B 0
         shell: cmd
 
+      - name: Kill any lingering python.exe
+        run: |
+          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: powershell
+
       - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
       - name: Force delete old directory
@@ -124,8 +134,13 @@ jobs:
         run: pm2 delete greetings-app-preprod & EXIT /B 0
         shell: cmd
 
+      - name: Kill any lingering python.exe
+        run: |
+          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: powershell
+
       - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
       - name: Force delete old directory
@@ -173,8 +188,13 @@ jobs:
         run: pm2 delete greetings-app-prod & EXIT /B 0
         shell: cmd
 
+      - name: Kill any lingering python.exe
+        run: |
+          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: powershell
+
       - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
       - name: Force delete old directory
