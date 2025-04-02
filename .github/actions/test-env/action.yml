@@ -1,15 +1,22 @@
+ Pārstrādātā versija ar npx (ieteicams):
+yaml
+Копировать
+Редактировать
 name: Run tests on environment
-description: Run JS tests using npm against target environment
+description: Run JS tests using newman against target environment
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
+    required: true
+  port:
+    description: Port for this environment (e.g. 7001)
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Echo testing environment
-      run: echo Running tests for ${{ inputs.env }} environment
+      run: echo Running tests for ${{ inputs.env }} on port ${{ inputs.port }}
       shell: cmd
       working-directory: js-framework
 
@@ -18,8 +25,8 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Run test command
-      run: npm run greetings_${{ inputs.env }}
+    - name: Run Newman tests directly
+      run: npx newman run greetings.postman_collection.json --env-var host=http://localhost:${{ inputs.port }}
       shell: cmd
       working-directory: js-framework
 
