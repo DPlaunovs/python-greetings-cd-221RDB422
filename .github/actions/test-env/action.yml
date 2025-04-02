@@ -1,5 +1,5 @@
 name: Run tests on environment
-description: Run JS tests using mocha against target environment
+description: Run JS tests using mocha with proper global.env
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
@@ -8,18 +8,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Echo testing environment
+    - name: Echo environment
       run: echo Running tests for ${{ inputs.env }}
       shell: cmd
       working-directory: js-framework
 
-    - name: Install npm dependencies
+    - name: Install dependencies
       run: npm install
       shell: cmd
       working-directory: js-framework
 
-    - name: Run tests with ENV for global.env
+    - name: Run tests with proper global.env
       run: |
-        set ENV=greetings_${{ inputs.env }} && npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
+        node -e "global.env='greetings_${{ inputs.env }}'; require('child_process').execSync('npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000', { stdio: 'inherit' })"
       shell: cmd
       working-directory: js-framework
