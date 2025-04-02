@@ -26,13 +26,20 @@ jobs:
         run: pm2 delete greetings-app-dev & EXIT /B 0
         shell: cmd
 
-      - name: Kill any lingering python.exe
+      - name: Kill lingering python.exe
         run: |
-          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+          $p = Get-Process python -ErrorAction SilentlyContinue
+          if ($p) {
+            Write-Output "Killing lingering python.exe..."
+            Stop-Process -Id $p.Id -Force
+            Start-Sleep -Seconds 5
+          } else {
+            Write-Output "No lingering python.exe found."
+          }
         shell: powershell
 
-      - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 10
+      - name: Final wait before deletion
+        run: Start-Sleep -Seconds 5
         shell: powershell
 
       - name: Force delete old directory
@@ -80,13 +87,20 @@ jobs:
         run: pm2 delete greetings-app-staging & EXIT /B 0
         shell: cmd
 
-      - name: Kill any lingering python.exe
+      - name: Kill lingering python.exe
         run: |
-          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+          $p = Get-Process python -ErrorAction SilentlyContinue
+          if ($p) {
+            Write-Output "Killing lingering python.exe..."
+            Stop-Process -Id $p.Id -Force
+            Start-Sleep -Seconds 5
+          } else {
+            Write-Output "No lingering python.exe found."
+          }
         shell: powershell
 
-      - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 10
+      - name: Final wait before deletion
+        run: Start-Sleep -Seconds 5
         shell: powershell
 
       - name: Force delete old directory
@@ -134,13 +148,20 @@ jobs:
         run: pm2 delete greetings-app-preprod & EXIT /B 0
         shell: cmd
 
-      - name: Kill any lingering python.exe
+      - name: Kill lingering python.exe
         run: |
-          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+          $p = Get-Process python -ErrorAction SilentlyContinue
+          if ($p) {
+            Write-Output "Killing lingering python.exe..."
+            Stop-Process -Id $p.Id -Force
+            Start-Sleep -Seconds 5
+          } else {
+            Write-Output "No lingering python.exe found."
+          }
         shell: powershell
 
-      - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 10
+      - name: Final wait before deletion
+        run: Start-Sleep -Seconds 5
         shell: powershell
 
       - name: Force delete old directory
@@ -188,13 +209,20 @@ jobs:
         run: pm2 delete greetings-app-prod & EXIT /B 0
         shell: cmd
 
-      - name: Kill any lingering python.exe
+      - name: Kill lingering python.exe
         run: |
-          Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+          $p = Get-Process python -ErrorAction SilentlyContinue
+          if ($p) {
+            Write-Output "Killing lingering python.exe..."
+            Stop-Process -Id $p.Id -Force
+            Start-Sleep -Seconds 5
+          } else {
+            Write-Output "No lingering python.exe found."
+          }
         shell: powershell
 
-      - name: Wait for PM2 to release files
-        run: Start-Sleep -Seconds 10
+      - name: Final wait before deletion
+        run: Start-Sleep -Seconds 5
         shell: powershell
 
       - name: Force delete old directory
