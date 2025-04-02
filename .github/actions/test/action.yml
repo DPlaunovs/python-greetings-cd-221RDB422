@@ -32,6 +32,5 @@ runs:
 
     - name: Run tests
       shell: cmd
-      run: |
-        npm run greetings greetings_${{ inputs.env }}
+      run: node tests/scenarios/greetings/index.js ${{ inputs.env }}
       working-directory: test-suite
