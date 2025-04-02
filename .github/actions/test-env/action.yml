@@ -1,5 +1,6 @@
 name: Run tests on environment
-description: Run JS tests using newman against target environment
+description: Run JS tests using Mocha against target environment
+
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
@@ -21,8 +22,8 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Newman tests directly
-      run: npx newman run greetings.postman_collection.json --env-var host=http://localhost:${{ inputs.port }}
+    - name: Run Mocha tests
+      run: npm run greetings
       shell: cmd
       working-directory: js-framework
 
