@@ -4,14 +4,20 @@ on:
 
 jobs:
   install-pip-deps:
-    # Job 1: Install Python dependencies with pip
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout this pipeline repo
+        uses: actions/checkout@v4  # lai piekļūtu .github/actions
+
+      - name: Clone python-greetings repo
         uses: actions/checkout@v4
-        # Ensures access to composite actions and config files
-      - name: Install Python dependencies
+        with:
+          repository: mtararujs/python-greetings
+          path: python-greetings  # <- šī būs working-directory
+
+      - name: Install pip deps
         uses: ./.github/actions/install-deps
+        working-directory: python-greetings
 
   deploy-to-dev:
     # Job 2: Deploy service to dev environment
