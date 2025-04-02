@@ -1,35 +1,35 @@
-name: Run tests on environment
-description: Run JS tests using mocha against target environment
-
+name: Run Mocha Tests with Global Env
+description: >
+  Composite action to run Mocha tests with a global.env value 
+  injected based on the input environment.
 inputs:
   env:
-    description: Environment name (e.g. dev, staging, preprod, prod)
+    description: "Target environment (e.g. dev, staging, prod) to map into config key."
     required: true
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Echo testing environment
-      run: echo Running tests for ${{ inputs.env }}
-      shell: cmd
-      working-directory: js-framework
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Create set-env.js file
-      run: echo global.env="greetings_${{ inputs.env }}" > set-env.js
-      shell: cmd
-      working-directory: js-framework
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'  # Use Node.js 18 (LTS) for the runner
 
-    - name: Install npm dependencies
-      run: npm install
-      shell: cmd
-      working-directory: js-framework
+    - name: Install dependencies
+      run: npm ci
 
-    - name: Run Mocha tests with global.env set
-      run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
-      shell: cmd
-      working-directory: js-framework
+    - name: Run Mocha tests
+      shell: 'node {0}'
+      run: |
+        // Inject the global.env variable for the desired config key
+        global.env = "greetings_${{ inputs.env }}";
+        console.log(`Set global.env = "${global.env}"`);
 
-    - name: Confirm tests completed
-      run: echo Tests for ${{ inputs.env }} completed!
-      shell: cmd
-      working-directory: js-framework
+        // Run the Mocha test suite (with Mochawesome reporter)
+        require('child_process').execSync(
+          'mocha tests/scenarios/greetings/*.js --reporter mochawesome',
+          { stdio: 'inherit' }
+        );
