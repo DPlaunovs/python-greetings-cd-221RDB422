@@ -18,6 +18,7 @@ jobs:
       - name: Install Python dependencies
         uses: ./.github/actions/install-deps
 
+
   deploy-to-dev:
     needs: install-pip-deps
     runs-on: [self-hosted, Windows]
@@ -26,7 +27,7 @@ jobs:
         run: pm2 delete greetings-app-dev & EXIT /B 0
         shell: cmd
 
-      - name: Kill lingering python.exe (app.py only)
+      - name: Kill lingering python.exe locking app.py
         run: |
           $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
           foreach ($p in $procs) {
@@ -38,12 +39,14 @@ jobs:
           }
         shell: powershell
 
-      - name: Final wait before deletion
+      - name: Wait before deletion
         run: Start-Sleep -Seconds 5
         shell: powershell
 
-      - name: Force delete old directory
-        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+      - name: Force delete directory
+        run: |
+          Write-Output "Deleting folder python-greetings..."
+          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
         shell: powershell
 
       - name: Checkout pipeline repo
@@ -79,6 +82,7 @@ jobs:
         with:
           env: dev
 
+
   deploy-to-staging:
     needs: tests-on-dev
     runs-on: [self-hosted, Windows]
@@ -87,7 +91,7 @@ jobs:
         run: pm2 delete greetings-app-staging & EXIT /B 0
         shell: cmd
 
-      - name: Kill lingering python.exe (app.py only)
+      - name: Kill lingering python.exe locking app.py
         run: |
           $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
           foreach ($p in $procs) {
@@ -99,12 +103,14 @@ jobs:
           }
         shell: powershell
 
-      - name: Final wait before deletion
+      - name: Wait before deletion
         run: Start-Sleep -Seconds 5
         shell: powershell
 
-      - name: Force delete old directory
-        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+      - name: Force delete directory
+        run: |
+          Write-Output "Deleting folder python-greetings..."
+          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
         shell: powershell
 
       - name: Checkout pipeline repo
@@ -140,6 +146,7 @@ jobs:
         with:
           env: staging
 
+
   deploy-to-preprod:
     needs: tests-on-staging
     runs-on: [self-hosted, Windows]
@@ -148,7 +155,7 @@ jobs:
         run: pm2 delete greetings-app-preprod & EXIT /B 0
         shell: cmd
 
-      - name: Kill lingering python.exe (app.py only)
+      - name: Kill lingering python.exe locking app.py
         run: |
           $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
           foreach ($p in $procs) {
@@ -160,12 +167,14 @@ jobs:
           }
         shell: powershell
 
-      - name: Final wait before deletion
+      - name: Wait before deletion
         run: Start-Sleep -Seconds 5
         shell: powershell
 
-      - name: Force delete old directory
-        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+      - name: Force delete directory
+        run: |
+          Write-Output "Deleting folder python-greetings..."
+          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
         shell: powershell
 
       - name: Checkout pipeline repo
@@ -201,6 +210,7 @@ jobs:
         with:
           env: preprod
 
+
   deploy-to-prod:
     needs: tests-on-preprod
     runs-on: [self-hosted, Windows]
@@ -209,7 +219,7 @@ jobs:
         run: pm2 delete greetings-app-prod & EXIT /B 0
         shell: cmd
 
-      - name: Kill lingering python.exe (app.py only)
+      - name: Kill lingering python.exe locking app.py
         run: |
           $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
           foreach ($p in $procs) {
@@ -221,12 +231,14 @@ jobs:
           }
         shell: powershell
 
-      - name: Final wait before deletion
+      - name: Wait before deletion
         run: Start-Sleep -Seconds 5
         shell: powershell
 
-      - name: Force delete old directory
-        run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
+      - name: Force delete directory
+        run: |
+          Write-Output "Deleting folder python-greetings..."
+          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
         shell: powershell
 
       - name: Checkout pipeline repo
