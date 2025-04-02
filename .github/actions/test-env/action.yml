@@ -22,8 +22,8 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Mocha tests
-      run: npm run greetings
+    - name: Run Mocha tests with HOST env
+      run: set host=http://localhost:${{ inputs.port }} && npm run greetings
       shell: cmd
       working-directory: js-framework
 
