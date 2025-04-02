@@ -1,33 +1,31 @@
 name: Run tests on environment
-description: Run JS tests using Mocha against target environment
-
+description: Run Mocha tests against greetings service
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
-    required: true
-  port:
-    description: Port for this environment (e.g. 7001)
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Echo testing environment
-      run: echo Running tests for ${{ inputs.env }} on port ${{ inputs.port }}
+      run: echo Running tests for ${{ inputs.env }}
       shell: cmd
       working-directory: js-framework
+
+    - name: Set global.env for config lookup
+      run: echo global.env=greetings_${{ inputs.env }}>> %GITHUB_ENV%
+      shell: cmd
 
     - name: Install npm dependencies
       run: npm install
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Mocha tests with host env
+    - name: Run tests
       run: npm run greetings
       shell: cmd
       working-directory: js-framework
-      env:
-        host: http://localhost:${{ inputs.port }}
 
     - name: Confirm tests completed
       run: echo Tests for ${{ inputs.env }} completed!
