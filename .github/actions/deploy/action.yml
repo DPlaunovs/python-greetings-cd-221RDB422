@@ -1,39 +1,28 @@
-name: Deploy Python App
-
-description: Start Python app with PM2
-
+name: Deploy Python Greetings Service
+description: "Use PM2 to (re)deploy the Python Greetings app to a given environment"
 inputs:
   env:
-    description: Environment name (e.g. dev, staging, preprod, prod)
+    description: "Target environment name (dev, staging, preprod, prod)"
     required: true
   port:
-    description: Port to run the app
+    description: "Port number to run the service on"
     required: true
-
 runs:
   using: "composite"
   steps:
-    - name: Stop PM2 and Python if running
-      shell: cmd
-      run: |
-        pm2 delete all || exit /B 0
-        taskkill /F /IM python.exe || exit /B 0
-        IF EXIST python-greetings (
-          rmdir /S /Q python-greetings
-        )
-
-    - name: Checkout python app
+    - name: Checkout Python service repository
       uses: actions/checkout@v4
       with:
         repository: mtararujs/python-greetings
         path: python-greetings
-
-    - name: Start new app with pm2
-      run: pm2 start app.py --name greetings-app-${{ inputs.env }} --interpreter python -- --port ${{ inputs.port }} --no-debugger
+    - name: Starting deployment
+      run: echo "Deploying application to '${{ inputs.env }}' environment (port ${{ inputs.port }})..."
+      shell: bash
+    - name: Stop existing service (if running)
+      run: pm2 delete greetings-app-${{ inputs.env }} || true
+      shell: bash
       working-directory: python-greetings
-      shell: cmd
-
-    - name: Wait for app to be ready
-      run: Start-Sleep -Seconds 5
-      shell: powershell
-
+    - name: Start service with PM2
+      run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }}
+      shell: bash
+      working-directory: python-greetings
