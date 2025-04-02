@@ -32,5 +32,6 @@ runs:
 
     - name: Run tests
       shell: cmd
-      run: npm run greetings
+      run: set TEST_ENV=${{ inputs.env }} && npm run greetings
       working-directory: test-suite
+
