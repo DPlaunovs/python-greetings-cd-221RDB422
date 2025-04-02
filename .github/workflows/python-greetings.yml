@@ -1,132 +1,176 @@
 name: Python Greetings CI/CD Pipeline
 on:
-  workflow_dispatch: {}  # Manual trigger of the pipeline
+  workflow_dispatch: {}  # Manual trigger
 
 jobs:
   install-pip-deps:
     runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout this pipeline repo
-        uses: actions/checkout@v4  # lai piekļūtu .github/actions
+      - name: Checkout pipeline repository
+        uses: actions/checkout@v4
 
       - name: Clone python-greetings repo
         uses: actions/checkout@v4
         with:
           repository: mtararujs/python-greetings
-          path: python-greetings  # <- šī būs working-directory
+          path: python-greetings
 
-      - name: Install pip deps
+      - name: Install Python dependencies
         uses: ./.github/actions/install-deps
         working-directory: python-greetings
 
   deploy-to-dev:
-    # Job 2: Deploy service to dev environment
-    needs: install-pip-deps  # depends on install-pip-deps job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: install-pip-deps
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Deploy to Dev environment (port 7001)
-        # Composite action clones service repo and restarts it via PM2
+
+      - name: Clone python-greetings repo
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/python-greetings
+          path: python-greetings
+
+      - name: Deploy to Dev
         uses: ./.github/actions/deploy-env
         with:
           env: dev
           port: 7001
+        working-directory: python-greetings
 
   tests-on-dev:
-    # Job 3: Run tests on dev environment
-    needs: deploy-to-dev  # depends on deploy-to-dev job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: deploy-to-dev
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Test Dev environment (port 7001)
-        # Composite action clones test repo and runs tests
+
+      - name: Clone test framework
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/course-js-api-framework
+          path: js-framework
+
+      - name: Run tests on Dev
         uses: ./.github/actions/test-env
         with:
           env: dev
-          port: 7001
+        working-directory: js-framework
 
   deploy-to-staging:
-    # Job 4: Deploy service to staging environment
-    needs: tests-on-dev  # depends on tests-on-dev job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: tests-on-dev
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Deploy to Staging environment (port 7002)
-        # Composite action clones service repo and restarts it via PM2
+
+      - name: Clone python-greetings repo
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/python-greetings
+          path: python-greetings
+
+      - name: Deploy to Staging
         uses: ./.github/actions/deploy-env
         with:
           env: staging
           port: 7002
+        working-directory: python-greetings
 
   tests-on-staging:
-    # Job 5: Run tests on staging environment
-    needs: deploy-to-staging  # depends on deploy-to-staging job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: deploy-to-staging
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Test Staging environment (port 7002)
-        # Composite action clones test repo and runs tests
+
+      - name: Clone test framework
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/course-js-api-framework
+          path: js-framework
+
+      - name: Run tests on Staging
         uses: ./.github/actions/test-env
         with:
           env: staging
-          port: 7002
+        working-directory: js-framework
 
   deploy-to-preprod:
-    # Job 6: Deploy service to preprod environment
-    needs: tests-on-staging  # depends on tests-on-staging job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: tests-on-staging
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Deploy to Preprod environment (port 7003)
-        # Composite action clones service repo and restarts it via PM2
+
+      - name: Clone python-greetings repo
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/python-greetings
+          path: python-greetings
+
+      - name: Deploy to Preprod
         uses: ./.github/actions/deploy-env
         with:
           env: preprod
           port: 7003
+        working-directory: python-greetings
 
   tests-on-preprod:
-    # Job 7: Run tests on preprod environment
-    needs: deploy-to-preprod  # depends on deploy-to-preprod job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: deploy-to-preprod
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Test Preprod environment (port 7003)
-        # Composite action clones test repo and runs tests
+
+      - name: Clone test framework
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/course-js-api-framework
+          path: js-framework
+
+      - name: Run tests on Preprod
         uses: ./.github/actions/test-env
         with:
           env: preprod
-          port: 7003
+        working-directory: js-framework
 
   deploy-to-prod:
-    # Job 8: Deploy service to prod environment
-    needs: tests-on-preprod  # depends on tests-on-preprod job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: tests-on-preprod
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Deploy to Prod environment (port 7004)
-        # Composite action clones service repo and restarts it via PM2
+
+      - name: Clone python-greetings repo
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/python-greetings
+          path: python-greetings
+
+      - name: Deploy to Prod
         uses: ./.github/actions/deploy-env
         with:
           env: prod
           port: 7004
+        working-directory: python-greetings
 
   tests-on-prod:
-    # Job 9: Run tests on prod environment
-    needs: deploy-to-prod  # depends on deploy-to-prod job
-    runs-on: [self-hosted, Windows]  # use self-hosted Windows runner
+    needs: deploy-to-prod
+    runs-on: [self-hosted, Windows]
     steps:
-      - name: Checkout pipeline repository
+      - name: Checkout pipeline repo
         uses: actions/checkout@v4
-      - name: Test Prod environment (port 7004)
-        # Composite action clones test repo and runs tests
+
+      - name: Clone test framework
+        uses: actions/checkout@v4
+        with:
+          repository: mtararujs/course-js-api-framework
+          path: js-framework
+
+      - name: Run tests on Prod
         uses: ./.github/actions/test-env
         with:
           env: prod
-          port: 7004
+        working-directory: js-framework
