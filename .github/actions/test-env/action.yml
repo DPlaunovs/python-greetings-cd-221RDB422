@@ -11,15 +11,19 @@ runs:
     - name: Echo testing environment
       run: echo Running tests for ${{ inputs.env }} environment
       shell: cmd
+      working-directory: js-framework
 
     - name: Install npm dependencies
       run: npm install
       shell: cmd
+      working-directory: js-framework
 
     - name: Run test command
       run: npm run greetings_${{ inputs.env }}
       shell: cmd
+      working-directory: js-framework
 
     - name: Confirm tests completed
       run: echo Tests for ${{ inputs.env }} completed!
       shell: cmd
+      working-directory: js-framework
