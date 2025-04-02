@@ -18,7 +18,6 @@ jobs:
       - name: Install Python dependencies
         uses: ./.github/actions/install-deps
 
-
   deploy-to-dev:
     needs: install-pip-deps
     runs-on: [self-hosted, Windows]
@@ -81,7 +80,7 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: dev
-
+          port: 7001
 
   deploy-to-staging:
     needs: tests-on-dev
@@ -145,7 +144,7 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: staging
-
+          port: 7002
 
   deploy-to-preprod:
     needs: tests-on-staging
@@ -209,7 +208,7 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: preprod
-
+          port: 7003
 
   deploy-to-prod:
     needs: tests-on-preprod
@@ -273,3 +272,4 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: prod
+          port: 7004
