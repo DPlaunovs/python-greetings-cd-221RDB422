@@ -61,7 +61,6 @@ jobs:
         uses: ./.github/actions/deploy-env
         with:
           env: dev
-          port: 7001
 
   tests-on-dev:
     needs: deploy-to-dev
@@ -80,7 +79,6 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: dev
-          port: 7001
 
   deploy-to-staging:
     needs: tests-on-dev
@@ -125,7 +123,6 @@ jobs:
         uses: ./.github/actions/deploy-env
         with:
           env: staging
-          port: 7002
 
   tests-on-staging:
     needs: deploy-to-staging
@@ -144,7 +141,6 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: staging
-          port: 7002
 
   deploy-to-preprod:
     needs: tests-on-staging
@@ -189,7 +185,6 @@ jobs:
         uses: ./.github/actions/deploy-env
         with:
           env: preprod
-          port: 7003
 
   tests-on-preprod:
     needs: deploy-to-preprod
@@ -208,7 +203,6 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: preprod
-          port: 7003
 
   deploy-to-prod:
     needs: tests-on-preprod
@@ -253,7 +247,6 @@ jobs:
         uses: ./.github/actions/deploy-env
         with:
           env: prod
-          port: 7004
 
   tests-on-prod:
     needs: deploy-to-prod
@@ -272,4 +265,3 @@ jobs:
         uses: ./.github/actions/test-env
         with:
           env: prod
-          port: 7004
