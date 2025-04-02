@@ -28,11 +28,11 @@ jobs:
 
       - name: Wait for PM2 to release files
         run: Start-Sleep -Seconds 5
-        shell: pwsh
+        shell: powershell
 
       - name: Force delete old directory
         run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: pwsh
+        shell: powershell
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -77,11 +77,11 @@ jobs:
 
       - name: Wait for PM2 to release files
         run: Start-Sleep -Seconds 5
-        shell: pwsh
+        shell: powershell
 
       - name: Force delete old directory
         run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: pwsh
+        shell: powershell
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -126,11 +126,11 @@ jobs:
 
       - name: Wait for PM2 to release files
         run: Start-Sleep -Seconds 5
-        shell: pwsh
+        shell: powershell
 
       - name: Force delete old directory
         run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: pwsh
+        shell: powershell
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
@@ -175,11 +175,11 @@ jobs:
 
       - name: Wait for PM2 to release files
         run: Start-Sleep -Seconds 5
-        shell: pwsh
+        shell: powershell
 
       - name: Force delete old directory
         run: Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: pwsh
+        shell: powershell
 
       - name: Checkout pipeline repo
         uses: actions/checkout@v4
