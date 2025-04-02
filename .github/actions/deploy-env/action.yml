@@ -1,0 +1,29 @@
+name: Deploy to Environment
+description: Checkout service code and deploy to specified environment using PM2.
+inputs:
+  env:
+    description: Target environment name (e.g. dev, staging, preprod, prod)
+    required: true
+  port:
+    description: Port number for the environment service
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Announce deployment
+      run: echo "Deploying to ${{ inputs.env }} environment (port ${{ inputs.port }})"
+      shell: pwsh
+    - name: Checkout Python service repository
+      uses: actions/checkout@v4
+      with:
+        repository: <OWNER>/python-greetings
+        path: python-service
+    - name: Stop existing service (if running)
+      run: 'pm2 delete "greetings-${{ inputs.env }}" || echo "No process found"'
+      shell: cmd
+    - name: Start service with PM2
+      run: pm2 start python-service/app.py --name "greetings-${{ inputs.env }}" -- ${{ inputs.port }}
+      shell: pwsh
+    - name: Confirm deployment
+      run: echo "Service deployed to ${{ inputs.env }} (port ${{ inputs.port }})"
+      shell: pwsh
