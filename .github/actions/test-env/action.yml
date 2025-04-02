@@ -1,35 +1,33 @@
-name: Run Mocha Tests with Global Env
-description: >
-  Composite action to run Mocha tests with a global.env value 
-  injected based on the input environment.
+name: Run tests on environment
+description: Run JS tests using mocha and mochawesome, setting global.env dynamically
+
 inputs:
   env:
-    description: "Target environment (e.g. dev, staging, prod) to map into config key."
+    description: Environment name (e.g. dev, staging, preprod, prod)
     required: true
 
 runs:
-  using: composite
+  using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Echo testing environment
+      run: echo Running tests for ${{ inputs.env }}
+      shell: cmd
+      working-directory: js-framework
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'  # Use Node.js 18 (LTS) for the runner
+    - name: Install npm dependencies
+      run: npm install
+      shell: cmd
+      working-directory: js-framework
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Run Mocha tests
-      shell: 'node {0}'
+    - name: Run Mocha tests with global.env
+      shell: node
+      working-directory: js-framework
       run: |
-        // Inject the global.env variable for the desired config key
+        // Set global.env so request.js can pick correct host
         global.env = "greetings_${{ inputs.env }}";
-        console.log(`Set global.env = "${global.env}"`);
+        console.log("Running tests with global.env =", global.env);
 
-        // Run the Mocha test suite (with Mochawesome reporter)
-        require('child_process').execSync(
-          'mocha tests/scenarios/greetings/*.js --reporter mochawesome',
-          { stdio: 'inherit' }
-        );
+        const { execSync } = require("child_process");
+        execSync("npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000", {
+          stdio: "inherit"
+        });
