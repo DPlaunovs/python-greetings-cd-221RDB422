@@ -1,41 +1,41 @@
-name: Run Tests
-
-description: Run API tests using NodeJS
-
+name: Run API Integration Tests
+description: "Checkout test framework and run API tests against a target environment"
 inputs:
   env:
-    description: Environment name (e.g. dev, staging, preprod, prod)
+    description: "Target environment name (dev, staging, preprod, prod)"
     required: true
-
+  port:
+    description: "Port number where the service is running"
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Stop PM2 and Python if running
-      shell: cmd
-      run: |
-        pm2 delete all || exit /B 0
-        taskkill /F /IM python.exe || exit /B 0
-        IF EXIST test-suite (
-          rmdir /S /Q test-suite
-        )
-
-    - name: Checkout test framework
+    - name: Checkout test repository
       uses: actions/checkout@v4
       with:
         repository: mtararujs/course-js-api-framework
-        path: test-suite
-
-    - name: Install node dependencies
-      shell: cmd
-      run: npm install
-      working-directory: test-suite
-
-    - name: Set environment for test
-      shell: cmd
-      run: set TEST_ENV=${{ inputs.env }}
-
-    - name: Run tests
-      shell: cmd
-      run: npm run greetings
-      working-directory: test-suite
-
+        path: course-js-api-framework
+    - name: Install test dependencies
+      run: |
+        echo "Installing test framework dependencies..."
+        npm install
+      shell: bash
+      working-directory: course-js-api-framework
+    - name: Wait for application to be ready
+      run: |
+        echo "Waiting for application to start on port ${{ inputs.port }}..."
+        for attempt in {1..10}; do
+          if curl -s -f "http://localhost:${{ inputs.port }}/greetings" -o /dev/null; then
+            echo "Application is up and responding!"
+            exit 0
+          fi
+          echo "Attempt $attempt: Service not yet available, retrying..."
+          sleep 3
+        done
+        echo "Service did not become ready in time."
+        exit 1
+      shell: bash
+    - name: Run integration tests
+      run: npm run greetings greetings_${{ inputs.env }}
+      shell: bash
+      working-directory: course-js-api-framework
