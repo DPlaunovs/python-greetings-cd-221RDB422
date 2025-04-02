@@ -19,13 +19,15 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Run Mocha tests with global.env
+    - name: Run Mocha tests
       run: >
-        node -e "global.env='greetings_${{ inputs.env }}';
-        require('child_process').execSync('npx mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000',
-        { stdio: 'inherit' })"
+        npx mocha tests/scenarios/greetings/*.js
+        --reporter mochawesome
+        --timeout 20000
       shell: cmd
       working-directory: js-framework
+      env:
+        ENV: greetings_${{ inputs.env }}
 
     - name: Confirm tests completed
       run: echo Tests for ${{ inputs.env }} completed!
