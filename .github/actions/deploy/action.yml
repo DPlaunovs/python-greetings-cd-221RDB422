@@ -1,28 +1,35 @@
-name: Deploy Python Greetings Service
-description: "Use PM2 to (re)deploy the Python Greetings app to a given environment"
+name: deploy-app
+description: "Deploy the Python app with PM2 to a given environment"
 inputs:
-  env:
-    description: "Target environment name (dev, staging, preprod, prod)"
+  environment:
+    description: "Environment name (dev, staging, preprod, prod)"
     required: true
+    type: string
   port:
-    description: "Port number to run the service on"
+    description: "Port number for the application"
     required: true
+    type: string
+  repo-path:
+    description: "Path to the Python app repository"
+    required: true
+    type: string
 runs:
   using: "composite"
   steps:
-    - name: Checkout Python service repository
-      uses: actions/checkout@v4
-      with:
-        repository: mtararujs/python-greetings
-        path: python-greetings
-    - name: Starting deployment
-      run: echo "Deploying application to '${{ inputs.env }}' environment (port ${{ inputs.port }})..."
-      shell: bash
-    - name: Stop existing service (if running)
-      run: pm2 delete greetings-app-${{ inputs.env }} || true
-      shell: bash
-      working-directory: python-greetings
-    - name: Start service with PM2
-      run: pm2 start app.py --name greetings-app-${{ inputs.env }} -- --port ${{ inputs.port }}
-      shell: bash
-      working-directory: python-greetings
+    - name: Deployment start message
+      run: echo "Deploying application to ${{ inputs.environment }} environment..."
+      shell: cmd
+      working-directory: ${{ inputs.repo-path }}
+    - name: Stop existing service
+      run: 'pm2 delete greetings-app-${{ inputs.environment }} & set "errorlevel=0"'
+      shell: cmd
+      working-directory: ${{ inputs.repo-path }}
+    - name: Start application
+      run: pm2 start app.py --name greetings-app-${{ inputs.environment }} -- --port ${{ inputs.port }}
+      shell: cmd
+      working-directory: ${{ inputs.repo-path }}
+    - name: Wait for startup
+      run: |
+        echo "Waiting for application startup..."
+        ping 127.0.0.1 -n 6 > NUL
+      shell: cmd
