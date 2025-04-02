@@ -1,6 +1,5 @@
 name: Run tests on environment
 description: Run JS tests using mocha against target environment
-
 inputs:
   env:
     description: Environment name (e.g. dev, staging, preprod, prod)
@@ -14,28 +13,17 @@ runs:
       shell: cmd
       working-directory: js-framework
 
-    - name: Set global.env for request.js
-      run: echo global.env="greetings_${{ inputs.env }}" > set-env.js
-      shell: cmd
-      working-directory: js-framework
-
-    - name: Print contents of set-env.js
-      run: type set-env.js
-      shell: cmd
-      working-directory: js-framework
-
     - name: Install npm dependencies
       run: npm install
       shell: cmd
       working-directory: js-framework
 
-    - name: Confirm global.env is set in runtime
-      run: node -e "require('./set-env.js'); console.log('global.env =', global.env)"
-      shell: cmd
-      working-directory: js-framework
-
-    - name: Run mocha tests
-      run: node --require ./set-env.js ./node_modules/mocha/bin/mocha tests/scenarios/greetings/*.js --reporter mochawesome --timeout 20000
+    - name: Run Mocha tests with global.env set
+      run: >
+        node -e "global.env='greetings_${{ inputs.env }}'; require('mocha/bin/mocha')" 
+        tests/scenarios/greetings/*.js 
+        --reporter mochawesome 
+        --timeout 20000
       shell: cmd
       working-directory: js-framework
 
