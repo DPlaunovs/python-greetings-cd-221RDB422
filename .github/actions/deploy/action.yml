@@ -1,0 +1,31 @@
+name: "Deploy Python Greetings app"
+description: "Composite action to deploy Python Greetings app"
+inputs:
+  environment:
+    description: "Environment where to deploy Python Greetings app"
+    required: true
+  port:
+    description: "Port for Python Greetings app"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Print step name
+      run: echo "Deployment to ${{ inputs.environment }} on port ${{ inputs.port }} has started.."
+      shell: bash
+    - uses: actions/checkout@v4
+      with:
+        repository: mtararujs/python-greetings
+        path: python-greetings
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    - name: Delete existing pm2 service
+      working-directory: python-greetings
+      run: pm2 delete greetings-app-${{ inputs.environment }} || true
+      shell: bash
+    - name: Run pm2 service
+      working-directory: python-greetings
+      run: pm2 start app.py --name greetings-app-${{ inputs.environment }} -- --port ${{ inputs.port }}
+      shell: bash
