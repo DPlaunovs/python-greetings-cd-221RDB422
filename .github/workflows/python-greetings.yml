@@ -1,267 +1,81 @@
-name: Python Greetings CI/CD Pipeline
+name: Python Greetings Workflow
+
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   install-pip-deps:
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
     steps:
-      - name: Checkout pipeline repository
-        uses: actions/checkout@v4
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
-        with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Install Python dependencies
-        uses: ./.github/actions/install-deps
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install
   deploy-to-dev:
-    needs: install-pip-deps
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [install-pip-deps]
     steps:
-      - name: Kill PM2 app if running
-        run: pm2 delete greetings-app-dev & EXIT /B 0
-        shell: cmd
-
-      - name: Kill lingering python.exe locking app.py
-        run: |
-          $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
-          foreach ($p in $procs) {
-            if ($p.CommandLine -like '*app.py*') {
-              Write-Output "Killing python.exe with app.py -> PID $($p.ProcessId)"
-              Stop-Process -Id $p.ProcessId -Force
-              Start-Sleep -Seconds 3
-            }
-          }
-        shell: powershell
-
-      - name: Wait before deletion
-        run: Start-Sleep -Seconds 5
-        shell: powershell
-
-      - name: Force delete directory
-        run: |
-          Write-Output "Deleting folder python-greetings..."
-          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: powershell
-
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
         with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Deploy to Dev
-        uses: ./.github/actions/deploy-env
-        with:
-          env: dev
-
+          environment: "dev"
+          port: "7001"
   tests-on-dev:
-    needs: deploy-to-dev
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [deploy-to-dev]
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone test framework
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
         with:
-          repository: mtararujs/course-js-api-framework
-          path: js-framework
-
-      - name: Run tests on Dev
-        uses: ./.github/actions/test-env
-        with:
-          env: dev
-
+          environment: "dev"
   deploy-to-staging:
-    needs: tests-on-dev
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [tests-on-dev]
     steps:
-      - name: Kill PM2 app if running
-        run: pm2 delete greetings-app-staging & EXIT /B 0
-        shell: cmd
-
-      - name: Kill lingering python.exe locking app.py
-        run: |
-          $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
-          foreach ($p in $procs) {
-            if ($p.CommandLine -like '*app.py*') {
-              Write-Output "Killing python.exe with app.py -> PID $($p.ProcessId)"
-              Stop-Process -Id $p.ProcessId -Force
-              Start-Sleep -Seconds 3
-            }
-          }
-        shell: powershell
-
-      - name: Wait before deletion
-        run: Start-Sleep -Seconds 5
-        shell: powershell
-
-      - name: Force delete directory
-        run: |
-          Write-Output "Deleting folder python-greetings..."
-          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: powershell
-
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
         with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Deploy to Staging
-        uses: ./.github/actions/deploy-env
-        with:
-          env: staging
-
+          environment: "stg"
+          port: "7002"
   tests-on-staging:
-    needs: deploy-to-staging
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [deploy-to-staging]
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone test framework
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
         with:
-          repository: mtararujs/course-js-api-framework
-          path: js-framework
-
-      - name: Run tests on Staging
-        uses: ./.github/actions/test-env
-        with:
-          env: staging
-
+          environment: "stg"
   deploy-to-preprod:
-    needs: tests-on-staging
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [tests-on-staging]
     steps:
-      - name: Kill PM2 app if running
-        run: pm2 delete greetings-app-preprod & EXIT /B 0
-        shell: cmd
-
-      - name: Kill lingering python.exe locking app.py
-        run: |
-          $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
-          foreach ($p in $procs) {
-            if ($p.CommandLine -like '*app.py*') {
-              Write-Output "Killing python.exe with app.py -> PID $($p.ProcessId)"
-              Stop-Process -Id $p.ProcessId -Force
-              Start-Sleep -Seconds 3
-            }
-          }
-        shell: powershell
-
-      - name: Wait before deletion
-        run: Start-Sleep -Seconds 5
-        shell: powershell
-
-      - name: Force delete directory
-        run: |
-          Write-Output "Deleting folder python-greetings..."
-          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: powershell
-
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
         with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Deploy to Preprod
-        uses: ./.github/actions/deploy-env
-        with:
-          env: preprod
-
+          environment: "preprod"
+          port: "7003"
   tests-on-preprod:
-    needs: deploy-to-preprod
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [deploy-to-preprod]
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone test framework
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
         with:
-          repository: mtararujs/course-js-api-framework
-          path: js-framework
-
-      - name: Run tests on Preprod
-        uses: ./.github/actions/test-env
-        with:
-          env: preprod
-
+          environment: "preprod"
   deploy-to-prod:
-    needs: tests-on-preprod
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [tests-on-preprod]
     steps:
-      - name: Kill PM2 app if running
-        run: pm2 delete greetings-app-prod & EXIT /B 0
-        shell: cmd
-
-      - name: Kill lingering python.exe locking app.py
-        run: |
-          $procs = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'"
-          foreach ($p in $procs) {
-            if ($p.CommandLine -like '*app.py*') {
-              Write-Output "Killing python.exe with app.py -> PID $($p.ProcessId)"
-              Stop-Process -Id $p.ProcessId -Force
-              Start-Sleep -Seconds 3
-            }
-          }
-        shell: powershell
-
-      - name: Wait before deletion
-        run: Start-Sleep -Seconds 5
-        shell: powershell
-
-      - name: Force delete directory
-        run: |
-          Write-Output "Deleting folder python-greetings..."
-          Remove-Item -Path "python-greetings" -Recurse -Force -ErrorAction SilentlyContinue
-        shell: powershell
-
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone python-greetings repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
         with:
-          repository: mtararujs/python-greetings
-          path: python-greetings
-
-      - name: Deploy to Prod
-        uses: ./.github/actions/deploy-env
-        with:
-          env: prod
-
+          environment: "prod"
+          port: "7004"
   tests-on-prod:
-    needs: deploy-to-prod
-    runs-on: [self-hosted, Windows]
+    runs-on: self-hosted
+    needs: [deploy-to-prod]
     steps:
-      - name: Checkout pipeline repo
-        uses: actions/checkout@v4
-
-      - name: Clone test framework
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
         with:
-          repository: mtararujs/course-js-api-framework
-          path: js-framework
-
-      - name: Run tests on Prod
-        uses: ./.github/actions/test-env
-        with:
-          env: prod
+          environment: "prod"
