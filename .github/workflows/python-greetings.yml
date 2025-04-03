@@ -16,7 +16,7 @@ jobs:
 
 
     steps:
-      - name: Izdzest visus darbojosos pm2 # savādak nevar palaist actions/checkout jo ir aktivi pm kas bloke mapi
+      - name: Kill all PM2 processes
         run: "pm2 delete all & set \"errorlevel=0\""
         shell: cmd 
       - uses: actions/checkout@v3.5.2
@@ -24,7 +24,7 @@ jobs:
 
 
   deploy-to-dev:
-    name: Deploy-to-DEV
+    name: deploy-to-DEV
     runs-on: self-hosted
     needs: [install-pip-deps]  
     steps:
@@ -35,7 +35,7 @@ jobs:
 
        
   tests-on-dev:
-    name: Tests-on-DEV
+    name: tests-on-DEV
     runs-on: self-hosted
     needs: [deploy-to-dev]  
     steps:
@@ -46,7 +46,7 @@ jobs:
 
 
   deploy-to-staging:
-    name: Deploy-to-staging
+    name: deploy-to-staging
     runs-on: self-hosted
     needs: [tests-on-dev]  
     steps:
@@ -56,7 +56,7 @@ jobs:
           enviroment: 'staging'
 
   tests-on-staging:
-    name: Tests-on-staging
+    name: tests-on-staging
     runs-on: self-hosted
     needs: [deploy-to-staging]  
     steps:      
@@ -65,7 +65,7 @@ jobs:
           enviroment: 'staging'
 
   deploy-to-preprod:
-    name: Deploy-to-preprod
+    name: deploy-to-preprod
     runs-on: self-hosted
     needs: [tests-on-staging]  
     steps:      
@@ -76,7 +76,7 @@ jobs:
 
 
   tests-on-preprod:
-    name: Tests-on-preprod
+    name: tests-on-preprod
     runs-on: self-hosted
     needs: [deploy-to-preprod]  
     steps:
@@ -95,7 +95,7 @@ jobs:
           enviroment: 'prod'
 
   test-on-prod:
-    name: test-on-prod
+    name: Test-on-prod
     runs-on: self-hosted
     needs: [deploy-to-prod]  
     steps:
