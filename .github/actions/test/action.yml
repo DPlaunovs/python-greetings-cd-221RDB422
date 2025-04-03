@@ -1,7 +1,12 @@
+name: Run JS tests
+description: Run tests using npm and environment variable
+
 inputs:
   enviroment:
-    description: 'Environment'
-    default: 'dev'
+    description: Environment
+    required: true
+    default: dev
+
 runs:
   using: "composite"
   steps:
@@ -11,11 +16,10 @@ runs:
 
     - name: npm install
       working-directory: ./js-api
-      run: "npm install"
+      run: npm install
       shell: cmd
-          
 
-    - name: Testa izpilde sakusies
+    - name: Run tests
       working-directory: ./js-api
-      run: "npm run greetings greetings_${{ inputs.enviroment }}"
+      run: npm run greetings greetings_${{ inputs.enviroment }}
       shell: cmd
