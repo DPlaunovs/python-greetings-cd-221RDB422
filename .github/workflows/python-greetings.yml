@@ -1,81 +1,104 @@
-name: Python Greetings Workflow
+
+name: python-greetings
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
   workflow_dispatch:
 
-jobs:
+jobs: 
   install-pip-deps:
+    name: Install pip deps
     runs-on: self-hosted
+
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/install
+      - name: Izdzest visus darbojosos pm2 # savādak nevar palaist actions/checkout jo ir aktivi pm kas bloke mapi
+        run: "pm2 delete all & set \"errorlevel=0\""
+        shell: cmd 
+      - uses: actions/checkout@v3.5.2
+      - uses: ./.github/actions/install-deps
+
+
   deploy-to-dev:
+    name: Deploy-to-DEV
     runs-on: self-hosted
-    needs: [install-pip-deps]
+    needs: [install-pip-deps]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/deploy
         with:
-          environment: "dev"
-          port: "7001"
+          port: 7001
+          enviroment: 'dev'
+
+       
   tests-on-dev:
+    name: Tests-on-DEV
     runs-on: self-hosted
-    needs: [deploy-to-dev]
+    needs: [deploy-to-dev]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/test
         with:
-          environment: "dev"
+          enviroment: 'dev'
+
+
+
   deploy-to-staging:
+    name: Deploy-to-staging
     runs-on: self-hosted
-    needs: [tests-on-dev]
+    needs: [tests-on-dev]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/deploy
         with:
-          environment: "stg"
-          port: "7002"
+          port: 7002
+          enviroment: 'staging'
+
   tests-on-staging:
+    name: Tests-on-staging
     runs-on: self-hosted
-    needs: [deploy-to-staging]
-    steps:
-      - uses: actions/checkout@v4
+    needs: [deploy-to-staging]  
+    steps:      
       - uses: ./.github/actions/test
         with:
-          environment: "stg"
+          enviroment: 'staging'
+
   deploy-to-preprod:
+    name: Deploy-to-preprod
     runs-on: self-hosted
-    needs: [tests-on-staging]
-    steps:
-      - uses: actions/checkout@v4
+    needs: [tests-on-staging]  
+    steps:      
       - uses: ./.github/actions/deploy
         with:
-          environment: "preprod"
-          port: "7003"
+          port: 7003
+          enviroment: 'preprod'
+
+
   tests-on-preprod:
+    name: Tests-on-preprod
     runs-on: self-hosted
-    needs: [deploy-to-preprod]
+    needs: [deploy-to-preprod]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/test
         with:
-          environment: "preprod"
+          enviroment: 'preprod'
+
   deploy-to-prod:
+    name: deploy-to-prod
     runs-on: self-hosted
-    needs: [tests-on-preprod]
+    needs: [tests-on-preprod]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/deploy
         with:
-          environment: "prod"
-          port: "7004"
-  tests-on-prod:
+          port: 7004
+          enviroment: 'prod'
+
+  test-on-prod:
+    name: test-on-prod
     runs-on: self-hosted
-    needs: [deploy-to-prod]
+    needs: [deploy-to-prod]  
     steps:
-      - uses: actions/checkout@v4
       - uses: ./.github/actions/test
         with:
-          environment: "prod"
+          enviroment: 'prod'
